@@ -4,23 +4,16 @@ Created on 13 nov. 2017
 @author: aitorlm
 '''
 import numpy as np
-from scipy.optimize import minimize
 import random as rd
 import time
 import matplotlib.pyplot as plt
 import os
-import multiprocessing as mp
-
-# This is the input function to which the GD algorithm will be applied
-# Parameters
-
-# This is my zero value
-
-eps = 1.0E-70
-
+import core_files.auxiliar_functions as aux  # Auxiliar functions
+from core_files.constants import *  # Parameters and constants
 
 class ANN:
-    # This is the Neural Network class builder. 
+    # from core_files.io_module import io
+    # This is the Neural Network class builder.
     # Input parameters are:
     # 1. dim vector, containing the inner structure of the NN layers
 
@@ -58,12 +51,12 @@ class ANN:
                                    "linear-decay": ANN.linear_decay_learning_rate,
                                    "quadratic-decay": ANN.quadratic_decay_learning_rate,
                                   "exponential-decay": ANN.exponential_decay_learning_rate}
-        self.dict_activation_function = {"linear": ANN.linear,
-                                         "sigmoid": ANN.sigmoid_matrix,
-                                         "ReLU": ANN.relu}
-        self.dict_activation_function_derivative = {"linear": ANN.linear_derivative,
-                                                    "sigmoid": ANN.sigmoid_matrix_derivative,
-                                                    "ReLU": ANN.relu_derivative}
+        self.dict_activation_function = {"linear": aux.linear,
+                                         "sigmoid": aux.sigmoid_matrix,
+                                         "ReLU": aux.relu}
+        self.dict_activation_function_derivative = {"linear": aux.linear_derivative,
+                                                    "sigmoid": aux.sigmoid_matrix_derivative,
+                                                    "ReLU": aux.relu_derivative}
         # self.dict_cost_function = {"MSE": ANN.mse_cost_function, "classification": ANN.classification_cost_function}
         # This distionary stores the cost functions that have been implemented
         self.dict_cost_function_derivative = {"MSE": ANN.mse_cost_function_derivative,
@@ -74,23 +67,10 @@ class ANN:
                                "stochastic": ANN.stochastic_input_set,
                                "batch": ANN.batch_input_set
                                }
-        ANN.build_matrices(self)
-        ANN.randomize_weights(self)
-        ANN.print_intro(self)
+        # ANN.build_matrices(self)
+        # ANN.randomize_weights(self)
+        # io.print_intro(self)
         # ANN.handle_exceptions(self)
-
-    def print_intro(self):
-        print("********************************************")
-        print("********* multilayer ANN core unit *********")
-        print("***************** vs 0.7 *******************")
-        print("********************************************\n")
-        print("The following multilayer perceptron has been generated:")
-        print("\t Dimensions: %s" % self.dim)
-        print("\t Activation functions: %s" % self.activation_function_list)
-        print("\t Cost function: %s" % self.cost_function_type)
-
-    # def handle_exceptions(self):
-    #     if
 
     def use_multiprocessing(self, processes=8):
         self.multiprocessing = True
@@ -329,40 +309,6 @@ class ANN:
             print(nodes[i])
         print("")
 
-    @staticmethod
-    def populate_with_bias(input, A):
-        for i in range(1, A.shape[0]):
-            A[i] = input[i - 1, 0]
-        return A
-
-    @staticmethod
-    def populate_nodes_a_from_z(z, a):
-        for i in range(0, len(z)):
-            for j in range(1, z[i].shape[0]):
-                a[i][j - 1, 0] = z[i][j, 0]
-        return a
-
-    @staticmethod
-    def populate_vector_bias_to_nobias(vec):
-        a = np.ones(shape=(vec.shape[0] - 1, 1))
-        for j in range(1, a.shape[0] + 1):
-            a[j - 1, 0] = vec[j, 0]
-        return a
-
-    @staticmethod
-    def populate_vector_nobias_to_bias(vec):
-        a = np.ones(shape=(vec.shape[0] + 1, 1))
-        for j in range(1, a.shape[0]):
-            a[j, 0] = vec[j - 1, 0]
-        return a
-
-    @staticmethod
-    def populate_nodes_z_from_a(a, z):
-        for i in range(0, len(a)):
-            for j in range(0, a[i].shape[0]):
-                z[i][j + 1, 0] = a[i][j, 0]
-        return z
-
     def initialize_tensor(self, A):
         for k in range(0, len(A)):
             for i in range(0, self.dim[k + 1]):
@@ -370,59 +316,6 @@ class ANN:
                     A[k][i, j] = 0.0
         return A
 
-    @staticmethod
-    def sigmoid_matrix(A, one_val=100.0, zero_val=-100.0):
-        """
-        Computes the truncated sigmoid of a given vector
-        :param A: input vector
-        :param one_val: Lower bound of the truncated sigmoid
-        :param zero_val: Upper bound of the truncated sigmoid
-        :return:
-        """
-        # print("sigmoid: %s" % A)
-        R = np.zeros_like(A)
-        for j in range(0, A.shape[0]):
-            val = A[j, 0]
-            if val > one_val:
-                sigmoid_val = 1.0
-            elif val < zero_val:
-                sigmoid_val = 0.0
-            else:
-                sigmoid_val = 1 / (1 + np.exp(-val))
-            R[j, 0] = sigmoid_val
-        return R
-
-    @staticmethod
-    def sigmoid_matrix_derivative(vec):
-        """
-        Calculates the derivative of the sigmoid of a given vector.
-        :param vec: input vector
-        :param id:
-        :return:
-        """
-        sigmoid_vector = ANN.sigmoid_matrix(vec)
-        temp_array = np.multiply(sigmoid_vector, 1 - sigmoid_vector)
-        return temp_array
-
-    @staticmethod
-    def linear(A):
-        return A
-
-    @staticmethod
-    def linear_derivative(vec):
-        temp_array = np.ones(shape=(vec.shape[0], 1))
-        return temp_array
-
-    @staticmethod
-    def relu(vec, r=0.0):
-        temp_array = np.maximum(r, vec)
-        return temp_array
-
-    @staticmethod
-    def relu_derivative(vec, r=0.0):
-        temp_array = np.maximum(r, vec)
-        temp_array[temp_array > r] = 1.0
-        return temp_array
 
     def apply_activation_function(self, vec, idx):
         """
@@ -466,14 +359,14 @@ class ANN:
         # This function performs the forward propagation algorithm using the actual weights and an input vector X
         # Populate the nodes_z matrix with the input set vector X, taking into account not to overwrite the bias term
         # Apply the first activation function
-        self.nodes_z[0] = ANN.populate_vector_nobias_to_bias(X)
+        self.nodes_z[0] = aux.populate_vector_nobias_to_bias(X)
         temp_vec = ANN.apply_activation_function(self, self.nodes_z[0], 0)
-        self.nodes_a[0] = ANN.populate_vector_bias_to_nobias(temp_vec)
+        self.nodes_a[0] = aux.populate_vector_bias_to_nobias(temp_vec)
         for i in range(0, self.Ndim - 1):  # We have one less weight matrix
-            temp_vec = np.dot(self.Theta[i], ANN.populate_vector_nobias_to_bias(self.nodes_a[i]))
-            self.nodes_z[i + 1] = ANN.populate_vector_nobias_to_bias(temp_vec)
+            temp_vec = np.dot(self.Theta[i], aux.populate_vector_nobias_to_bias(self.nodes_a[i]))
+            self.nodes_z[i + 1] = aux.populate_vector_nobias_to_bias(temp_vec)
             temp_vec = ANN.apply_activation_function(self, self.nodes_z[i + 1], i + 1)
-            self.nodes_a[i + 1] = ANN.populate_vector_bias_to_nobias(temp_vec)
+            self.nodes_a[i + 1] = aux.populate_vector_bias_to_nobias(temp_vec)
         return self.nodes_a
 
     def forward_propagate(self, x):
@@ -589,7 +482,7 @@ class ANN:
         self.nodes_delta[-1] = self.dict_cost_function_derivative[self.cost_function_type](
             self)  # For sigmoid activation in first layer
         try_array = ANN.apply_activation_function_derivative(self,
-                                                             ANN.populate_vector_bias_to_nobias(self.nodes_z[-1]),
+                                                             aux.populate_vector_bias_to_nobias(self.nodes_z[-1]),
                                                              -1)
         try_array = np.multiply(self.nodes_delta[-1], try_array)
         self.nodes_delta[-1] = try_array
@@ -599,12 +492,12 @@ class ANN:
             vec = np.dot(self.Theta[i - 1].transpose(), self.nodes_delta[i])
             activation_function_derivative = ANN.apply_activation_function_derivative(self, self.nodes_z[i - 1], i - 1)
             vec = np.multiply(vec, activation_function_derivative)
-            self.nodes_delta[i - 1] = ANN.populate_vector_bias_to_nobias(vec)
+            self.nodes_delta[i - 1] = aux.populate_vector_bias_to_nobias(vec)
 
         # Compute the accumulative Delta
         for k in range(0, len(self.dim) - 1):
             temp_tensor = np.outer(self.nodes_delta[k + 1],
-                                   ANN.populate_vector_nobias_to_bias(self.nodes_a[k]).transpose())
+                                   aux.populate_vector_nobias_to_bias(self.nodes_a[k]).transpose())
             self.Delta[k] += temp_tensor
 
     def compute_gradient(self):
@@ -969,3 +862,14 @@ class ANN:
 
 def unwrap_self_f(arg, **kwarg):
     return ANN.individual_gradient(*arg, **kwarg)
+
+class io(ANN):
+    def print_intro(self):
+        print("********************************************")
+        print("********* multilayer ANN core unit *********")
+        print("***************** vs 0.7 *******************")
+        print("********************************************\n")
+        print("The following multilayer perceptron has been generated:")
+        print("\t Dimensions: %s" % self.dim)
+        print("\t Activation functions: %s" % self.activation_function_list)
+        print("\t Cost function: %s" % self.cost_function_type)

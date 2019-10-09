@@ -1,13 +1,13 @@
 # Develop ANN
 from context import ANN_solver
-from ANN_solver import ANN_core as ANN
+from core_files import ANN_core as ANN
 
 import numpy as np
 import random as rd
 import matplotlib.pyplot as plt
 if __name__ == '__main__':
-    dim = [2, 4, 4, 4, 1]
-    activation_list = ["linear", "sigmoid", "sigmoid","sigmoid", "sigmoid"]
+    dim = [2, 20, 1]
+    activation_list = ["linear", "sigmoid", "sigmoid"]
     Neural_network = ANN.ANN(dim, activation_function_list=activation_list, cost_function="classification")
 
     # Check gradient calculation
