@@ -52,8 +52,8 @@ if __name__ == '__main__':
     # X_sample = X_sample + X_sample1 + X_sample2
     # Y_sample = Y_sample + Y_sample1 + Y_sample2
 
-    print(X_sample)
-    print(Y_sample)
+    # print(X_sample)
+    # print(Y_sample)
 
     # print("Initial cost function: %s" % Neural_N.cost_function())
 
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     Neural_network.normalize_x_stdmean()
     # Neural_network.add_sample_data()  # Will add input X and Y to inner plots
     Neural_network.run_gradient_descent(alpha=0.025, ATOL=1E-20, RTOL=1E-20, AlwaysDecrease=False,
-                                                    N=1000, plotting=True, NMAX=15000, lambda0=0.00025, input_set_type="batch",
+                                                    n=1000, plotting=True, NMAX=15000, lambda0=0.00025, input_set_type="batch",
                                                     Norm=False, N_batch=3, plot_contour=True)
     #Neural_network.gradient_descent_learning_auto_momentum(alpha=0.001, ATOL=1E-20, RTOL=1E-20, AlwaysDecrease=False,
     #                                                N=100, plotting=True, NMAX=1E4, lambda0=0.1,

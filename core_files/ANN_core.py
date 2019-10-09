@@ -690,86 +690,86 @@ class ANN:
         if not self.momentum:
             self.Theta -= np.multiply(self.alpha, self.D)
 
-    def gradient_descent(self, alpha=1e-4, ATOL=1E-3, RTOL=1E-4, AlwaysDecrease=False,
-                                                    N=100, plotting=True, n_plot=False, NMAX=1E4, lambda0=0.0, input_set_type="full",
-                                                    momentum_g=0.8, Norm=False, N_batch=25, plot_contour=False, n_contour=[100, 100],
-                                                    momentum=False, avoid_cf=False):
-        # Perform gradient descent minimization algorithm using the provided learning rate.
-        # It uses a fixed number of learning steps
-        # Parameters for live plotting
-        self.input_set_type = input_set_type
-        self.n_batch = N_batch
-        self.plotting = plotting
-        self.time_start = time.time()
-        self.time_0 = self.time_start
-        self.lambda0 = lambda0  # Regularization term
-        self.gamma = momentum_g  # The momentum term
-        self.alpha = alpha  # Step size
-        self.alpha0 = alpha  # Initial step size (default)
-        self.ATOL = ATOL
-        self.RTOL = RTOL
-        self.NMAX = NMAX
-        self.momentum = momentum
-        self.tol["AlwaysDecrease"]["Value"] = AlwaysDecrease
-        self.x_backup = self.x
-        self.avoid_CF = avoid_cf
-
-        if n_plot == False:
-            self.n_plot = N
-        else:
-            self.n_plot = n_plot
-        self.Time = []
-        self.CF = []
-        line1 = []
-        # Automatic tolerance stop (ATOL)
-        self.nsim = 0
-        # Velocities matrix for the momentum implementation
-        ANN.print_gradient_descent_intro(self)
-        if Norm:  # Specifies if the input X vector should be normalized
-            if self.normalized:
-                pass
-            else:
-                ANN.normalize_x_stdmean(self)
-        else:
-            pass
-        self.n_plot_list = []
-        self.CF_plot_list = []
-        # First timestep cf calculation
-        temp_CF = ANN.cost_function(self)
-        self.n_plot_list.append(self.nsim)
-        self.CF_plot_list.append(temp_CF)
-        line1 = ANN.plot_CF(self, line1)
-        contour = []
-        while 1:
-            if self.adaptive_learning_rate:
-                self.alpha = ANN.adaptive_learning_rate(self)
-            ANN.compute_gradient_and_update_weights(self)
-            # ANN.update_weights(self)
-            if (ANN.evaluate_tolerances(self, ATOL, RTOL, NMAX) == True):
-                break
-            if self.avoid_CF:
-                pass
-            else:
-                temp_CF = ANN.cost_function(self)
-                self.CF.append(temp_CF)
-            ANN.evaluate_tolerances(self, ATOL, RTOL, NMAX)
-            if float(self.nsim) % N == 0.0:
-                if self.avoid_CF:
-                    temp_CF = ANN.cost_function(self)
-                    self.CF.append(temp_CF)
-                print("Learning step %s, cost function value: %s" % (self.nsim, temp_CF))
-                ANN.print_tolerances(self)
-                if plot_contour:
-                    contour = ANN.live_plotter_contour(self, contour, n_contour)
-                # ANN.check_gradient(self)
-            self.nsim += 1
-            if plotting:
-                if float(self.nsim) % N == 0:
-                    self.n_plot_list.append(self.nsim)
-                    self.CF_plot_list.append(temp_CF)
-                    line1 = ANN.plot_CF(self, line1)
-        ANN.sim_status(self)
-        plt.ioff()
+    # def gradient_descent(self, alpha=1e-4, ATOL=1E-3, RTOL=1E-4, AlwaysDecrease=False,
+    #                                                 N=100, plotting=True, n_plot=False, NMAX=1E4, lambda0=0.0, input_set_type="full",
+    #                                                 momentum_g=0.8, Norm=False, N_batch=25, plot_contour=False, n_contour=[100, 100],
+    #                                                 momentum=False, avoid_cf=False):
+    #     # Perform gradient descent minimization algorithm using the provided learning rate.
+    #     # It uses a fixed number of learning steps
+    #     # Parameters for live plotting
+    #     self.input_set_type = input_set_type
+    #     self.n_batch = N_batch
+    #     self.plotting = plotting
+    #     self.time_start = time.time()
+    #     self.time_0 = self.time_start
+    #     self.lambda0 = lambda0  # Regularization term
+    #     self.gamma = momentum_g  # The momentum term
+    #     self.alpha = alpha  # Step size
+    #     self.alpha0 = alpha  # Initial step size (default)
+    #     self.ATOL = ATOL
+    #     self.RTOL = RTOL
+    #     self.NMAX = NMAX
+    #     self.momentum = momentum
+    #     self.tol["AlwaysDecrease"]["Value"] = AlwaysDecrease
+    #     self.x_backup = self.x
+    #     self.avoid_CF = avoid_cf
+    #
+    #     if n_plot == False:
+    #         self.n_plot = N
+    #     else:
+    #         self.n_plot = n_plot
+    #     self.Time = []
+    #     self.CF = []
+    #     line1 = []
+    #     # Automatic tolerance stop (ATOL)
+    #     self.nsim = 0
+    #     # Velocities matrix for the momentum implementation
+    #     ANN.print_gradient_descent_intro(self)
+    #     if Norm:  # Specifies if the input X vector should be normalized
+    #         if self.normalized:
+    #             pass
+    #         else:
+    #             ANN.normalize_x_stdmean(self)
+    #     else:
+    #         pass
+    #     self.n_plot_list = []
+    #     self.CF_plot_list = []
+    #     # First timestep cf calculation
+    #     temp_CF = ANN.cost_function(self)
+    #     self.n_plot_list.append(self.nsim)
+    #     self.CF_plot_list.append(temp_CF)
+    #     line1 = ANN.plot_CF(self, line1)
+    #     contour = []
+    #     while 1:
+    #         if self.adaptive_learning_rate:
+    #             self.alpha = ANN.adaptive_learning_rate(self)
+    #         ANN.compute_gradient_and_update_weights(self)
+    #         # ANN.update_weights(self)
+    #         if (ANN.evaluate_tolerances(self, ATOL, RTOL, NMAX) == True):
+    #             break
+    #         if self.avoid_CF:
+    #             pass
+    #         else:
+    #             temp_CF = ANN.cost_function(self)
+    #             self.CF.append(temp_CF)
+    #         ANN.evaluate_tolerances(self, ATOL, RTOL, NMAX)
+    #         if float(self.nsim) % N == 0.0:
+    #             if self.avoid_CF:
+    #                 temp_CF = ANN.cost_function(self)
+    #                 self.CF.append(temp_CF)
+    #             print("Learning step %s, cost function value: %s" % (self.nsim, temp_CF))
+    #             ANN.print_tolerances(self)
+    #             if plot_contour:
+    #                 contour = ANN.live_plotter_contour(self, contour, n_contour)
+    #             # ANN.check_gradient(self)
+    #         self.nsim += 1
+    #         if plotting:
+    #             if float(self.nsim) % N == 0:
+    #                 self.n_plot_list.append(self.nsim)
+    #                 self.CF_plot_list.append(temp_CF)
+    #                 line1 = ANN.plot_CF(self, line1)
+    #     ANN.sim_status(self)
+    #     plt.ioff()
     def print_tolerances(self):
         for tol_name in self.tol:
             if tol_name == "NMAX":

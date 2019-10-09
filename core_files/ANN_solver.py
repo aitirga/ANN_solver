@@ -4,6 +4,7 @@
 # ---
 from core_files.constants import *
 import core_files.ANN_core as ANN_core
+import core_files.gradient_descent as GD
 
 class ANN_solver(ANN_core.ANN):
     def __init__(self, dim, activation_function_list=(), eps_ini=0.12, cost_function="MSE", verbose=True):
@@ -13,9 +14,10 @@ class ANN_solver(ANN_core.ANN):
         ANN_core.ANN.randomize_weights(self)
         ANN_core.io.print_intro(self)
 
-
     def run_gradient_descent(self, **kwargs):
-        ANN_core.ANN.gradient_descent(self, **kwargs)
+        GD.GradientDescent.initialize(self, **kwargs)
+        GD.GradientDescent.run_gradient_descent(self)
+        # ANN_core.ANN.gradient_descent(self, **kwargs)
 
 
 if __name__ == "__main__":
