@@ -8,7 +8,6 @@ import random as rd
 def linear (x, a=1.0, b=0.0):
     return a*x + b
 
-
 def quadratic(x, a=1.0, b=0.0, c=0.0):
     return a*x**2 + b*x + c
 
@@ -30,8 +29,8 @@ def y_from_x(x, val):
 
 
 if __name__ == '__main__':
-    dim = [2, 20, 20, 1]
-    activation_list = ["linear", "ReLU", "sigmoid", "sigmoid"]
+    dim = [2, 35, 1]
+    activation_list = ["linear", "ReLU", "sigmoid"]
     Neural_network = ANN_solver(dim, activation_function_list=activation_list, cost_function="classification")
 
     X_sample = sample_function(quadratic, 20, a=1.0, c=0.0)
@@ -43,34 +42,19 @@ if __name__ == '__main__':
     X_sample3 = sample_function(quadratic, 20, a=1.0, c=-0.75)
     Y_sample3 = y_from_x(X_sample, 0.0)
 
-    # X_sample2 = sample_function(quadratic, 20, a=1.0, c=-0.5)
-    # Y_sample2 = y_from_x(X_sample, 0.0)
 
     X_sample = X_sample + X_sample1 + X_sample2 + X_sample3
     Y_sample = Y_sample + Y_sample1 + Y_sample2 + Y_sample3
 
-    # X_sample = X_sample + X_sample1 + X_sample2
-    # Y_sample = Y_sample + Y_sample1 + Y_sample2
-
-    # print(X_sample)
-    # print(Y_sample)
-
-    # print("Initial cost function: %s" % Neural_N.cost_function())
 
     Neural_network.create_data_vector_x(X_sample)
     Neural_network.create_data_vector_y(Y_sample)
     Neural_network.normalize_x_stdmean()
     # Neural_network.add_sample_data()  # Will add input X and Y to inner plots
-    Neural_network.run_gradient_descent(alpha=0.025, ATOL=1E-20, RTOL=1E-20, AlwaysDecrease=False,
-                                                    n=1000, plotting=True, NMAX=15000, lambda0=0.00025, input_set_type="batch",
-                                                    Norm=False, N_batch=3, plot_contour=True)
-    #Neural_network.gradient_descent_learning_auto_momentum(alpha=0.001, ATOL=1E-20, RTOL=1E-20, AlwaysDecrease=False,
-    #                                                N=100, plotting=True, NMAX=1E4, lambda0=0.1,
-    #                                                gamma=0.9, Norm=False)
-    # Neural_network.write_weights(filename_weights)
+    Neural_network.run_gradient_descent(alpha=0.1, ATOL=1E-20, RTOL=1E-20, AlwaysDecrease=False,
+                                                    n=250, plotting=True, NMAX=15000, lambda0=0.00025, input_set_type="stochastic",
+                                                    Norm=False, N_batch=20, plot_contour=True)
 
-    # print("Result of the initial case X = (0,0): %s" % Neural_network.feedforward_result_norm(
-    #     np.array([[0.001], [0.00001]])))
     # Plot the feedforward result in the 2D plane
     Nx = Ny = 100
     xlist = np.linspace(-2.0, 2.0, Nx)

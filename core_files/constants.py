@@ -5,3 +5,7 @@
 
 # Equivalent zero value
 EPS = 1.0E-70
+ATOL = 1e-3
+RTOL = 1e-4
+NMAX = 1000
+current_vs = 0.8

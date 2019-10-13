@@ -1,7 +1,7 @@
 '''
 Created on 13 nov. 2017
 
-@author: aitorlm
+@author: aitirga
 '''
 import numpy as np
 import random as rd
@@ -9,6 +9,7 @@ import time
 import matplotlib.pyplot as plt
 import os
 import core_files.auxiliar_functions as aux  # Auxiliar functions
+# from core_files.gradient_descent import GradientDescent
 from core_files.constants import *  # Parameters and constants
 
 class ANN:
@@ -131,21 +132,6 @@ class ANN:
 
     def add_sample_data(self):
         self.add_sample_data_to_contour = True
-
-    # def convert_input_vector(self, x):
-    #     """
-    #     This function takes the input vector x and transforms it into the format used inside the class
-    #     :param x: input vector
-    #     :return: vector in class format
-    #     """
-    #     try:
-    #         if (x.shape[0] == self.dim[0]) and len(x.shape) == 2:
-    #             return x
-    #         elif x.shape[0] == self.dim[0] and len(x.shape) == 1:
-    #             input_vec = np.ones(shape=[self.dim[0], 1])
-    #             for idx, item in enumerate(x):
-    #                 input_vec[idx, 0] = item
-    #             return input_vec
 
     def convert_vector(self, vec):
         """
@@ -589,58 +575,6 @@ class ANN:
                 hit += 1
         print("The success percentage is %s%%" % (hit / len(X) * 100))
 
-    def evaluate_tolerances(self, ATOL=1E-2, RTOL=1E-4, NMAX=100000, AlwaysDecrease=False):
-        if len(self.CF) > 1:
-            self.tol["ATOL"]["Value"] = abs(self.CF[-2] - self.CF[-1])
-            self.tol["RTOL"]["Value"] = abs(self.CF[-2] - self.CF[-1]) / (abs(self.CF[-1] - self.CF[0] + self.eps))
-            self.tol["NMAX"]["Value"] = self.nsim
-            if (self.tol["AlwaysDecrease"]["Value"] == 1.0) and (self.CF[-1] - self.CF[-2] > 0.0):
-                self.tol["AlwaysDecrease"]["Status"] = True
-            if self.tol["ATOL"]["Value"] < ATOL:
-                self.tol["ATOL"]["Status"] = True
-            if self.tol["RTOL"]["Value"] < RTOL:
-                self.tol["RTOL"]["Status"] = True
-            if self.tol["NMAX"]["Value"] > NMAX:
-                self.tol["NMAX"]["Status"] = True
-        for i in self.tol:
-            if self.tol[i]["Status"]:
-                return True
-
-    def sim_status(self):
-        reason = {}
-        for i in self.tol:
-            if self.tol[i]["Status"]:
-                reason[i] = self.tol[i]
-        print("************ Training finished ************\n")
-        print("*******************************************")
-        print("********** ANN training status ************")
-        print("*******************************************")
-        print("The training of the neural network has finished")
-        print("Total training time: %s s" % (time.time() - self.time_start))
-        print("Simulation steps: %s" % self.nsim)
-        print("Value of the minimized Cost Function %s" % self.CF[-1])
-        print("Reason for termination: %s" % reason)
-        print("****************** END ********************\n")
-        os.system('pause')
-
-    def print_gradient_descent_intro(self):
-        print("*******************************************")
-        print("**** Gradient descent training utility ****")
-        print("*******************************************")
-        print("Gradient descent utility properties:")
-        print("\tLearning rate: %s" % self.alpha)
-        if self.plotting:
-            print("\tPlotting CF evolution")
-        print("Regularization term: %s" % self.lambda0)
-        print("Input set for gradient calculation: %s" % self.input_set_type)
-        if self.input_set_type == "batch":
-            print("Batch elements: %s" % self.n_batch)
-        print("Gradient acceleration: %s" % self.momentum)
-        print("\tTolerances:")
-        print("\t\tATOL: %s" % self.ATOL)
-        print("\t\tRTOL: %s" % self.RTOL)
-        print("\t\tNMAX: %s" % self.NMAX)
-        print("************ Training started *************")
 
     def constant_learning_rate(self, alpha=0.001):
         self.alpha = alpha
@@ -672,104 +606,6 @@ class ANN:
     def unset_adaptive_learning_rate(self):
         self.adaptive_learning_rate = False
 
-    def adaptive_learning_rate(self):
-        return self.dict_learning_rate[self.adaptive_learning_rate_type](self, **self.adaptive_learning_rate_args)
-
-    def compute_gradient_and_update_weights(self):
-        if not self.momentum == "nesterov":
-            ANN.compute_gradient(self)
-        if self.momentum == "nesterov":
-            self.Theta += np.multiply(self.alpha, self.v_momentum)
-            ANN.compute_gradient(self)
-        if self.momentum == True or self.momentum == "yes":
-            self.v_momentum = np.multiply(self.gamma, self.v_momentum) - np.multiply(self.alpha, self.D)
-            self.Theta += self.v_momentum
-        if self.momentum == "nesterov":
-            self.v_momentum = np.multiply(self.gamma, self.v_momentum) - np.multiply(self.alpha, self.D)
-            self.Theta += self.v_momentum
-        if not self.momentum:
-            self.Theta -= np.multiply(self.alpha, self.D)
-
-    # def gradient_descent(self, alpha=1e-4, ATOL=1E-3, RTOL=1E-4, AlwaysDecrease=False,
-    #                                                 N=100, plotting=True, n_plot=False, NMAX=1E4, lambda0=0.0, input_set_type="full",
-    #                                                 momentum_g=0.8, Norm=False, N_batch=25, plot_contour=False, n_contour=[100, 100],
-    #                                                 momentum=False, avoid_cf=False):
-    #     # Perform gradient descent minimization algorithm using the provided learning rate.
-    #     # It uses a fixed number of learning steps
-    #     # Parameters for live plotting
-    #     self.input_set_type = input_set_type
-    #     self.n_batch = N_batch
-    #     self.plotting = plotting
-    #     self.time_start = time.time()
-    #     self.time_0 = self.time_start
-    #     self.lambda0 = lambda0  # Regularization term
-    #     self.gamma = momentum_g  # The momentum term
-    #     self.alpha = alpha  # Step size
-    #     self.alpha0 = alpha  # Initial step size (default)
-    #     self.ATOL = ATOL
-    #     self.RTOL = RTOL
-    #     self.NMAX = NMAX
-    #     self.momentum = momentum
-    #     self.tol["AlwaysDecrease"]["Value"] = AlwaysDecrease
-    #     self.x_backup = self.x
-    #     self.avoid_CF = avoid_cf
-    #
-    #     if n_plot == False:
-    #         self.n_plot = N
-    #     else:
-    #         self.n_plot = n_plot
-    #     self.Time = []
-    #     self.CF = []
-    #     line1 = []
-    #     # Automatic tolerance stop (ATOL)
-    #     self.nsim = 0
-    #     # Velocities matrix for the momentum implementation
-    #     ANN.print_gradient_descent_intro(self)
-    #     if Norm:  # Specifies if the input X vector should be normalized
-    #         if self.normalized:
-    #             pass
-    #         else:
-    #             ANN.normalize_x_stdmean(self)
-    #     else:
-    #         pass
-    #     self.n_plot_list = []
-    #     self.CF_plot_list = []
-    #     # First timestep cf calculation
-    #     temp_CF = ANN.cost_function(self)
-    #     self.n_plot_list.append(self.nsim)
-    #     self.CF_plot_list.append(temp_CF)
-    #     line1 = ANN.plot_CF(self, line1)
-    #     contour = []
-    #     while 1:
-    #         if self.adaptive_learning_rate:
-    #             self.alpha = ANN.adaptive_learning_rate(self)
-    #         ANN.compute_gradient_and_update_weights(self)
-    #         # ANN.update_weights(self)
-    #         if (ANN.evaluate_tolerances(self, ATOL, RTOL, NMAX) == True):
-    #             break
-    #         if self.avoid_CF:
-    #             pass
-    #         else:
-    #             temp_CF = ANN.cost_function(self)
-    #             self.CF.append(temp_CF)
-    #         ANN.evaluate_tolerances(self, ATOL, RTOL, NMAX)
-    #         if float(self.nsim) % N == 0.0:
-    #             if self.avoid_CF:
-    #                 temp_CF = ANN.cost_function(self)
-    #                 self.CF.append(temp_CF)
-    #             print("Learning step %s, cost function value: %s" % (self.nsim, temp_CF))
-    #             ANN.print_tolerances(self)
-    #             if plot_contour:
-    #                 contour = ANN.live_plotter_contour(self, contour, n_contour)
-    #             # ANN.check_gradient(self)
-    #         self.nsim += 1
-    #         if plotting:
-    #             if float(self.nsim) % N == 0:
-    #                 self.n_plot_list.append(self.nsim)
-    #                 self.CF_plot_list.append(temp_CF)
-    #                 line1 = ANN.plot_CF(self, line1)
-    #     ANN.sim_status(self)
-    #     plt.ioff()
     def print_tolerances(self):
         for tol_name in self.tol:
             if tol_name == "NMAX":
@@ -866,8 +702,8 @@ def unwrap_self_f(arg, **kwarg):
 class io(ANN):
     def print_intro(self):
         print("********************************************")
-        print("********* multilayer ANN core unit *********")
-        print("***************** vs 0.7 *******************")
+        print("********* multilayer ANN solver *********")
+        print("***************** vs %s *******************" % current_vs)
         print("********************************************\n")
         print("The following multilayer perceptron has been generated:")
         print("\t Dimensions: %s" % self.dim)

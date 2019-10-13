@@ -3,14 +3,15 @@
 # Description: This module contains the gradient descent class
 # ---
 from core_files.ANN_core import ANN
+from core_files.constants import *
 import os
 import matplotlib.pyplot as plt
 import time
-
+import numpy as np
 
 class GradientDescent(ANN):
-    def initialize(self, alpha=1e-4, ATOL=1E-3, RTOL=1E-4, AlwaysDecrease=False,
-                                                    n=100, plotting=True, n_plot=False, NMAX=1E4, lambda0=0.0, input_set_type="full",
+    def initialize(self, alpha=1e-4, ATOL=ATOL, RTOL=RTOL, AlwaysDecrease=False,
+                                                    n=100, plotting=True, n_plot=False, NMAX=NMAX, lambda0=0.0, input_set_type="full",
                                                     momentum_g=0.8, Norm=False, N_batch=25, plot_contour=False, n_contour=[100, 100],
                                                     momentum=False, avoid_cf=False):
         # Perform gradient descent minimization algorithm using the provided learning rate.
@@ -50,12 +51,8 @@ class GradientDescent(ANN):
 
 
         if Norm:  # Specifies if the input X vector should be normalized
-            if self.normalized:
-                pass
-            else:
+            if not self.normalized:
                 ANN.normalize_x_stdmean(self)
-        else:
-            pass
 
 
     def run_gradient_descent(self):
@@ -71,17 +68,17 @@ class GradientDescent(ANN):
         contour = []
         while 1:
             if self.adaptive_learning_rate:
-                self.alpha = ANN.adaptive_learning_rate(self)
-            ANN.compute_gradient_and_update_weights(self)
+                self.alpha = GradientDescent.adaptive_learning_rate(self)
+            GradientDescent.compute_gradient_and_update_weights(self)
             # ANN.update_weights(self)
-            if (ANN.evaluate_tolerances(self, self.ATOL, self.RTOL, self.NMAX) == True):
+            if (GradientDescent.evaluate_tolerances(self, self.ATOL, self.RTOL, self.NMAX) == True):
                 break
             if self.avoid_CF:
                 pass
             else:
                 temp_CF = ANN.cost_function(self)
                 self.CF.append(temp_CF)
-            ANN.evaluate_tolerances(self, self.ATOL, self.RTOL, self.NMAX)
+            GradientDescent.evaluate_tolerances(self, self.ATOL, self.RTOL, self.NMAX)
             if float(self.nsim) % self.n == 0.0:
                 if self.avoid_CF:
                     temp_CF = ANN.cost_function(self)
@@ -97,8 +94,44 @@ class GradientDescent(ANN):
                     self.n_plot_list.append(self.nsim)
                     self.CF_plot_list.append(temp_CF)
                     line1 = ANN.plot_CF(self, line1)
-        ANN.sim_status(self)
+        io.sim_status(self)
         plt.ioff()
+
+    def adaptive_learning_rate(self):
+        return self.dict_learning_rate[self.adaptive_learning_rate_type](self, **self.adaptive_learning_rate_args)
+
+    def compute_gradient_and_update_weights(self):
+        if not self.momentum == "nesterov":
+            ANN.compute_gradient(self)
+        if self.momentum == "nesterov":
+            self.Theta += np.multiply(self.alpha, self.v_momentum)
+            ANN.compute_gradient(self)
+        if self.momentum == True or self.momentum == "yes":
+            self.v_momentum = np.multiply(self.gamma, self.v_momentum) - np.multiply(self.alpha, self.D)
+            self.Theta += self.v_momentum
+        if self.momentum == "nesterov":
+            self.v_momentum = np.multiply(self.gamma, self.v_momentum) - np.multiply(self.alpha, self.D)
+            self.Theta += self.v_momentum
+        if not self.momentum:
+            self.Theta -= np.multiply(self.alpha, self.D)
+
+    def evaluate_tolerances(self, ATOL=1E-2, RTOL=1E-4, NMAX=100000, AlwaysDecrease=False):
+        if len(self.CF) > 1:
+            self.tol["ATOL"]["Value"] = abs(self.CF[-2] - self.CF[-1])
+            self.tol["RTOL"]["Value"] = abs(self.CF[-2] - self.CF[-1]) / (abs(self.CF[-1] - self.CF[0] + self.eps))
+            self.tol["NMAX"]["Value"] = self.nsim
+            if (self.tol["AlwaysDecrease"]["Value"] == 1.0) and (self.CF[-1] - self.CF[-2] > 0.0):
+                self.tol["AlwaysDecrease"]["Status"] = True
+            if self.tol["ATOL"]["Value"] < ATOL:
+                self.tol["ATOL"]["Status"] = True
+            if self.tol["RTOL"]["Value"] < RTOL:
+                self.tol["RTOL"]["Status"] = True
+            if self.tol["NMAX"]["Value"] > NMAX:
+                self.tol["NMAX"]["Status"] = True
+        for i in self.tol:
+            if self.tol[i]["Status"]:
+                return True
+
 
 
 class io(GradientDescent):
