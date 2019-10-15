@@ -2,16 +2,15 @@
 # Created by aitirga at 09/10/2019
 # Description: This module contains auxiliar functions that are used in the ANN_core module
 # ---
-
 import numpy as np
 
 
 def sigmoid_matrix(A, one_val=100.0, zero_val=-100.0):
-    """
+    """Computes the sigmoid of a matrix
     Computes the truncated sigmoid of a given vector
-    :param A: input vector
-    :param one_val: Lower bound of the truncated sigmoid
-    :param zero_val: Upper bound of the truncated sigmoid
+    :param numpy.array A: input vector
+    :param float one_val: Lower bound of the truncated sigmoid
+    :param float zero_val: Upper bound of the truncated sigmoid
     :return:
     """
     # print("sigmoid: %s" % A)
@@ -29,11 +28,11 @@ def sigmoid_matrix(A, one_val=100.0, zero_val=-100.0):
 
 
 def sigmoid_matrix_derivative(vec):
-    """
+    """Sigmoid matrix derivative
     Calculates the derivative of the sigmoid of a given vector.
-    :param vec: input vector
-    :param id:
-    :return:
+    :param numpy.array vec: input vector
+    :return: derivative of the sigmoid function
+    :rtype: numpy.array
     """
     sigmoid_vector = sigmoid_matrix(vec)
     temp_array = np.multiply(sigmoid_vector, 1 - sigmoid_vector)
@@ -41,20 +40,44 @@ def sigmoid_matrix_derivative(vec):
 
 
 def linear(A):
+    """Linear activation function
+    Computes a linear activation function
+    :param A:
+    :return: array
+    """
     return A
 
 
 def linear_derivative(vec):
+    """Linear derivative activation function
+    Derivative of the linear activation function
+    :param vec:
+    :return: array
+    """
     temp_array = np.ones(shape=(vec.shape[0], 1))
     return temp_array
 
 
 def relu(vec, r=0.0):
+    """ReLU activation
+    Computes the rectified activation unit (ReLU)
+    :param numpy.array vec:
+    :param float r:
+    :return: reLU activated array
+    :rtype: numpy.array
+    """
     temp_array = np.maximum(r, vec)
     return temp_array
 
 
 def relu_derivative(vec, r=0.0):
+    """Derivative of the ReLU activation function
+    Computes the derivative of the ReLU activation function
+    :param numpy.array vec: input array or vector
+    :param float r: constant that defines the position of the ReLU activation
+    :return: ReLU activation function
+    :rtype: numpy.array
+    """
     temp_array = np.maximum(r, vec)
     temp_array[temp_array > r] = 1.0
     return temp_array

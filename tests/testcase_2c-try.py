@@ -51,9 +51,9 @@ if __name__ == '__main__':
     Neural_network.create_data_vector_y(Y_sample)
     Neural_network.normalize_x_stdmean()
     # Neural_network.add_sample_data()  # Will add input X and Y to inner plots
-    Neural_network.run_gradient_descent(alpha=0.1, ATOL=1E-20, RTOL=1E-20, AlwaysDecrease=False,
+    Neural_network.run_gradient_descent(alpha=0.1, ATOL=1E-20, RTOL=1E-20, always_decrease=False,
                                                     n=250, plotting=True, NMAX=15000, lambda0=0.00025, input_set_type="stochastic",
-                                                    Norm=False, N_batch=20, plot_contour=True)
+                                                    norm=False, n_batch=20, plot_contour=True)
 
     # Plot the feedforward result in the 2D plane
     Nx = Ny = 100

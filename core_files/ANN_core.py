@@ -18,7 +18,7 @@ class ANN:
     # Input parameters are:
     # 1. dim vector, containing the inner structure of the NN layers
 
-    def __init__(self, dim, activation_function_list=[], eps_ini=0.12, cost_function="MSE", verbose=True):
+    def __init__(self, dim, activation_function_list=[], eps_ini=EPS_INI, cost_function="MSE", verbose=True):
         self.dim = dim
         self.activation_function_list = activation_function_list
         if self.activation_function_list == []:
@@ -77,10 +77,15 @@ class ANN:
         self.multiprocessing = True
         self.n_processes = processes
         # from pathos.multiprocessing import ProcessingPool
-        import pathos.multiprocessing as mp
-        from joblib import Parallel, delayed
+        # import pathos.multiprocessing as mp
+        # from joblib import Parallel, delayed
 
     def read_pd_array(self, v):
+        """Reads array in pandas format
+        Automatically reads an input array given by pandas package
+        :param array v:
+        :return: array in correct format
+        """
         full_v = []
         for i in range(v.shape[0]):
             temp_v = np.array(v.iloc[i, :].values)
@@ -89,6 +94,11 @@ class ANN:
         return full_v
 
     def create_data_vector_x(self, x):
+        """Sets input vector in the ANN module
+        Given an array, it stores the input data correctly inside the ANN module
+        :param array x: input array (all the samples)
+        :return:
+        """
         print("Setting up input vectors of the training set")
         if str(type(x)) == "<class 'pandas.core.frame.DataFrame'>":
             x_temp = ANN.read_pd_array(self, x)
@@ -101,7 +111,7 @@ class ANN:
         print("\tInput array set up, number of elements: %s" % len(self.x))
         return 1
 
-    def add_data_element_X(self, X):
+    def add_data_element_x(self, X):
         """
         Adds an input data element to input vector X
         :param X:
@@ -113,6 +123,11 @@ class ANN:
         self.x.append(temp_numpy)
 
     def create_data_vector_y(self, y):
+        """
+        Given an array, it stores the output data correctly inside the ANN module
+        :param array y: output array (all the samples)
+        :return:
+        """
         print("Setting up output vectors of the training set")
         if str(type(y)) == "<class 'pandas.core.frame.DataFrame'>":
             x_temp = ANN.read_pd_array(self, y)
@@ -124,7 +139,7 @@ class ANN:
         self.y = y_temp
         print("Output array set up, number of elements: %s" % len(self.x))
 
-    def add_data_element_Y(self, Y):
+    def add_data_element_y(self, Y):
         temp_numpy = np.zeros(shape=(len(Y), 1))
         for i in range(0, len(Y)):
             temp_numpy[i, 0] = Y[i]
@@ -136,8 +151,9 @@ class ANN:
     def convert_vector(self, vec):
         """
         This function takes the input vector x and transforms it into the format used inside the class
-        :param vec: input vector
-        :return: vector in class format
+        :param numpy.array vec: input vector
+        :return: vector in the correct format
+        :rtype:numpy.array
         """
         try:
             if len(vec.shape) == 2:
@@ -164,12 +180,27 @@ class ANN:
                 return input_vec
 
     def normalize_v(self, v):
+        """Normalize vector using max/min criteria
+        Normalizes the input vector using the max/min criteria
+        v_norm = (v_input - min_input) / (max_input - min_input)
+
+        :param v: input to normalize
+        :return: normalized array
+        :rtype: numpy.array
+        """
         temp_v = np.zeros_like(self.x[0])
         for i in range(0, self.x[0].shape[0]):
             temp_v[i, 0] = 1 / (self.xmax[i] - self.xmin[i]) * (np.float32(v[i]) - self.xmin[i])
         return temp_v
 
     def normalize_v_stdmean(self, v):
+        """Normalize vector using std/mean criteria
+        Normalizes the input vector using the std/mean criteria
+        v_norm = (v_input - mean_input) / (std_input)
+        :param v: input to normalize
+        :return: normalized array
+        :rtype: numpy.array
+        """
         temp_v = np.zeros_like(self.x[0])
         for i in range(0, self.x[0].shape[0]):
             if self.xstd[i] == 0.0:
@@ -177,7 +208,12 @@ class ANN:
             temp_v[i, 0] = (np.float32(v[i]) - self.xmean[i]) / self.xstd[i]
         return temp_v
 
-    def normalize_X(self):
+    def normalize_x(self):
+        """Normalize input set using max/min criteria
+        Normalizes the whole input set using the max/min criteria
+        v_norm = (v_input - min_input) / (max_input - min_input)
+        :return:
+        """
         self.xmin = np.ones(shape=(self.x[0].shape[0]))
         self.xmax = np.ones(shape=(self.x[0].shape[0]))
         print(self.xmin)
@@ -200,7 +236,7 @@ class ANN:
             self.xnorm.append(np.array(temp_array))
 
     def normalize_x_stdmean(self):
-        """
+        """Normalize input set using std/mean criteria
         Automatically normalizes the input vector X, following the equation:
         X_norm_i = (X_i - X_mean)/X_std
         :return:
@@ -223,15 +259,13 @@ class ANN:
         # print(self.xnorm)
 
     def initialize_cross_validation(self, r_train=0.6, r_cv=0.2, r_test=0.2):
-        ''' Aitor - 11/12/18
+        """
         This function divides the sample dataset into three different datasets in order to use cross-validation and test verification
-        
-        Arguments:
-        r_train -> Ratio of the sample space to be used as the training dataset       
-        r_cs -> Ratio of the sample space to be used as the cross validation dataset
-        r_test -> Ratio of the sample space to be used as the test dataset
-        
-        '''
+        :param float r_train: Ratio of the sample space to be used as the training dataset
+        :param float r_cv: Ratio of the sample space to be used as the cross validation dataset
+        :param float r_test: Ratio of the sample space to be used as the test dataset
+        :return:
+        """
         self.xtrain = []
         self.xcv = []
         self.xtest = []
@@ -245,7 +279,12 @@ class ANN:
         list_test = rd.choice(whole_list, N_test)
         print(list_train)
 
-    def build_matrices(self):  # Build all necessary matrices that will need to be used
+    def build_matrices(self):
+        """ Builds all necessary matrices that will be used
+        :return: self instance with the structures of the matrix set up
+        :rtype: self
+        """
+        #
         self.Theta = []  # This is the weight tensor (connection matrix)
         self.ThetaPlus = []  # This is the weight tensor (for gradient checking)
         self.ThetaMinus = []  # This is the weight tensor (for gradient checking)
@@ -270,17 +309,26 @@ class ANN:
             self.nodes_delta.append(np.zeros(shape=(self.dim[i], 1)))
 
     def randomize_matrix(self, A):
+        """Randomizes initial matrix
+        Randomizes initial matrix using the parameter eps_ini U_ij = U_ij + random([-eps_ini, eps_ini])
+        :param numpy.array A: input array
+        :return: randomized array
+        :rtype: numpy.array
+        """
         shape_m = A.shape
         randM = np.zeros(shape=shape_m)
         for i in range(0, shape_m[0]):
             for j in range(0, shape_m[1]):
                 val = rd.uniform(-self.eps_ini, self.eps_ini)
                 randM[i, j] = val
-        # print("randomized: %s" % randM)
-        # randA = np.random.rand(shape[0], shape[1])
         return randM
 
     def randomize_weights(self):
+        """Randomizes the weights of the ANN solver
+        Randomizes the weigths of the ANN solver
+        :return: randomized weigth matrix
+        :rtype: numpy.array
+        """
         id = 0
         for i in self.Theta:
             i = ANN.randomize_matrix(self, i)
@@ -296,6 +344,11 @@ class ANN:
         print("")
 
     def initialize_tensor(self, A):
+        """Initializes a three dimensional tensor
+        Initilizes a three dimensional tensor to zero
+        :param A:
+        :return: Initialized tensor
+        """
         for k in range(0, len(A)):
             for i in range(0, self.dim[k + 1]):
                 for j in range(0, self.dim[k] + 1):
@@ -304,7 +357,7 @@ class ANN:
 
 
     def apply_activation_function(self, vec, idx):
-        """
+        """Sets the activation function dictionary
         Function that applies an activation function defined at "dict_activation_function" dictionary to the vector vec.
         :param vec: target of the activation function
         :param idx: index that targets the type of activation function used in layer l
@@ -314,7 +367,7 @@ class ANN:
         return self.dict_activation_function[function_key](vec)
 
     def apply_activation_function_derivative(self, vec, idx):
-        """
+        """ Sets the activation function derivative dictionary
         Function that applies the derivative of an activation function defined at "dict_activation_function_derivative"
         dictionary to the vector vec
         :param vec:
@@ -326,23 +379,44 @@ class ANN:
 
     # Input sets
     def get_input_set(self):
+        """ Gets input set from dict_input_set dictionary
+        Gets input set from dict_input_set dictionary
+        :return: input set
+        """
         return self.dict_input_set[self.input_set_type](self)
 
     def full_input_set(self):
+        """Outputs the "full" input set
+        Outputs the "full" input set
+        :return: Whole input set
+        """
         set_x = range(len(self.x))
         return set_x
 
     def stochastic_input_set(self):
+        """Outputs one element of the input set
+        Outputs one elements of the input set
+        :return: one element of the input set
+        """
         set_x = rd.choice(range(len(self.x)))
         return [set_x]
 
     def batch_input_set(self):
+        """Outputs a batch of input elements
+        Creates a batch of n_batch elements from the input set
+        :return: batch of input set
+        """
         set_x = rd.sample(range(0, len(self.x)), self.n_batch)
         return set_x
 
 
     def forward_propagation(self, X):
-        # This function performs the forward propagation algorithm using the actual weights and an input vector X
+        """Forward propagates the input set
+        This functions performs the forwards propagation algorithm using the actual weigths of the ANN module
+        and an input vector X.
+        :param array X: input array
+        :return: output layer after forward propagating
+        """
         # Populate the nodes_z matrix with the input set vector X, taking into account not to overwrite the bias term
         # Apply the first activation function
         self.nodes_z[0] = aux.populate_vector_nobias_to_bias(X)
@@ -366,7 +440,12 @@ class ANN:
         return forward_propagate[-1]
 
     def forward_propagation_weight(self, X, Theta):
-        # This function performs the forward propagation algorithm using a given weight matrix and an input vector X
+        """Forward propagates the input set given a weight matrix
+        This functions performs the forwards propagation algorithm using a given weight matrix and an input vector X.
+        :param array X: input array
+        :param array Theta: weight matrix
+        :return: output layer after forward propagating
+        """
         # Populate the nodes_z matrix with the input set vector X, taking into account not to overwrite the bias term
         # Apply the first activation function
         self.nodes_z[0] = ANN.populate_vector_nobias_to_bias(X)
@@ -380,21 +459,37 @@ class ANN:
         return 1
 
     def mse_cost_function(self):
+        """Mean square error cost function
+        Computes the mean square error cost function
+        :return: value of the mean square error cost function
+        """
         ff_result = self.nodes_a[-1]
         for i in range(0, ff_result.shape[0]):
             self.val_cf += 1 / 2 * (self.y_sample_cf[i] - self.nodes_a[-1][i]) ** 2  # Min square
         return self.val_cf
 
     def mse_cost_function_derivative(self):
+        """Derivative of the mean square error cost function
+        Computes the derivative of the mean square error cost function
+        :return:
+        """
         return self.nodes_a[-1] - self.y_test
 
     def classification_cost_function(self):
+        """Cross-entropy cost function
+        Computes the cross-entropy cost function
+        :return: value of the cost function
+        """
         ff_result = self.nodes_a[-1]
         for i in range(0, ff_result.shape[0]):
             self.val_cf += -(self.y_sample_cf[i] * np.log(ff_result[i] + self.eps) + (1 - self.y_sample_cf[i]) * np.log(1 - ff_result[i] + + self.eps)) # Classification
         return self.val_cf
 
     def classification_cost_function_derivative(self):
+        """Derivative of the cross-entropy cost function
+        Computes the derivative of the cross-entropy cost function
+        :return: derivative of the cross-entropy cost function
+        """
         temp_array = self.nodes_a[-1] - self.y_test
         temp_array2 = np.multiply(self.nodes_a[-1], 1 - self.nodes_a[-1]) + self.eps
         #if temp_array2 < self.eps:
@@ -406,6 +501,11 @@ class ANN:
         return self.dict_cost_function[self.cost_function_type](self)
 
     def cost_function(self):
+        """Computes the cost function
+        Based on the current set-up of the model, it computes the cost function
+        using the sample set that is defined and the type of cost function
+        :return: cost function value
+        """
         # Iteration over the training set
         input_set = ANN.get_input_set(self)
         N_X = len(input_set)
@@ -429,6 +529,12 @@ class ANN:
         return cost
 
     def cost_function_weight(self, X, Y, Theta):
+        """Computes the cost function given based on an input set, output set and weigth matrix
+        :param array X: input set
+        :param array Y: output set
+        :param array Theta: weight matrix
+        :return: cost function
+        """
         # Iteration over the training set
         N_X = len(X)
         self.val_cf = 0.0
@@ -450,18 +556,14 @@ class ANN:
         self.val_cf = cost
         return self.val_cf
 
-    def write_weights(self, filename):
-        # Writes the weights of the Neural Network on a text file "filename.dat" in the numpy format
-        np.save(filename, self.Theta)
-        print("The weight matrix has been properly saved in %s" % filename)
 
-    def load_weights(self, filename):
-        # Writes the weights of the Neural Network on a text file "filename.dat" in the numpy format
-        v = np.load(filename)
-        self.Theta = v
-        print("The weight matrix has been properly load from %s" % filename)
 
     def individual_gradient(self, r):
+        """Computes gradient of the cost function of a sample with respect to the elements of the weigth matrix
+        This function calculates the gradient of the cost function of a single sample with respect
+        to the elements of the weigth matrix using the backpropagation algorithm
+        :param r: sample to compute the gradient
+        """
         self.x_test = self.x[r]
         self.y_test = self.y[r]
         ANN.forward_propagation(self, self.x_test)
@@ -487,6 +589,11 @@ class ANN:
             self.Delta[k] += temp_tensor
 
     def compute_gradient(self):
+        """Computes the partial derivatives of the cost function with respect to the weigths for the input sample
+        Using the backpropagation algorithm, this function calculates the gradient of the cost function with
+        respect to the elements of the weight matrix
+        :return: gradient array
+        """
         # Computes the partial derivatives of the cost function in respect to the weigths for a given training sample (Xi, Yi)
         # First we need to run the forward propagation algorithm
         # Reinitialize Delta function (?)
@@ -514,6 +621,13 @@ class ANN:
         return self.D
 
     def check_gradient(self, eps=1E-5):
+        """Checks the gradient computed using the gradient descent algorithm with the one computed using finite differences
+        This function checks wheter the gradient array computed with the backpropagation algorithm is correct. To check
+        it, it computes the gradient in two ways: using the backprogation algorithm and using a simple finite difference
+        method. Finally, a ratio between the two gradients is outputted
+        :param float eps: parameter to compute the finite difference
+        :return: ratio of the gradients
+        """
         # print("ratio: %s" % self.Dcheck)
         ANN.compute_gradient(self)
         N_X = len(self.x)
@@ -614,6 +728,14 @@ class ANN:
         print("\tLearning rate: %s" % self.alpha)
 
     def live_plotter(self, x_vec, y1_data, line1, identifier='', pause_time=0.001):
+        """Plots the cost function over the iterations dinamically
+        :param x_vec: array of iterations
+        :param y1_data: array of values of the cost function
+        :param line1: plotting line object
+        :param identifier:
+        :param pause_time: update time of the plotting frame
+        :return: updated plotting line object
+        """
         plt.style.use('ggplot')
         if line1 == []:
             # this is the call to matplotlib that allows dynamic plotting
@@ -640,6 +762,15 @@ class ANN:
         return line1
 
     def live_plotter_contour(self, contour, n, pause_time=0.001, xrange=[-1.0, 1.0], yrange=[-1.0,1.0]):
+        """Plots a dynamic contour plot of the predictions (only for 2D input sets)
+        Plots a dynamic contour plot of the predictions (only for 2D input sets)
+        :param contour: contour object
+        :param n: dimensions of the contour (n_x, n_y)
+        :param pause_time: update time of the plot
+        :param xrange: range of the horizontal variable
+        :param yrange: range of the vertical variable
+        :return:
+        """
         plt.style.use('ggplot')
         nx = n[0]
         ny = n[1]
@@ -701,6 +832,10 @@ def unwrap_self_f(arg, **kwarg):
 
 class io(ANN):
     def print_intro(self):
+        """Prints header of the ANN solver
+        Prints header and some extra information of the ANN solver and the created multilayer perceptron
+        :return:
+        """
         print("********************************************")
         print("********* multilayer ANN solver *********")
         print("***************** vs %s *******************" % current_vs)

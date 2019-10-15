@@ -10,15 +10,41 @@ import time
 import numpy as np
 
 class GradientDescent(ANN):
-    def initialize(self, alpha=1e-4, ATOL=ATOL, RTOL=RTOL, AlwaysDecrease=False,
+    def initialize(self, alpha=1e-4, ATOL=ATOL, RTOL=RTOL, always_decrease=False,
                                                     n=100, plotting=True, n_plot=False, NMAX=NMAX, lambda0=0.0, input_set_type="full",
-                                                    momentum_g=0.8, Norm=False, N_batch=25, plot_contour=False, n_contour=[100, 100],
+                                                    momentum_g=0.8, norm=False, n_batch=25, plot_contour=False, n_contour=[100, 100],
                                                     momentum=False, avoid_cf=False):
+        """
+
+        :param alpha: initial learning rate
+        :param ATOL: absolute tolerance, if the change in cost function between consecutive steps is less than ATOL,
+        the algorithm converges
+        :param RTOL: relative tolerance, if the change in costa function compared to the initial one is less than RTOL,
+        the algorithm converges
+        :param AlwaysDecrease: set it TRUE in order to force the cost function to always decrease in value, if it does
+        not do that, an error is raised
+        :param n: parameter that controls the number of steps before updating the plots
+        :param plotting:
+        :param n_plot:
+        :param NMAX: maximum number of timesteps, if the algorithm performs more timesteps, it raises an error
+        :param lambda0: regularization parameter
+        :param input_set_type: sets the criteria to use the input file in the calculation of the gradient descent:
+        "full" to use the whole dataset, "batch" to do batches of n_batch elements and "stochastic" to use one
+        input every step
+        :param momentum_g: sets the momentum constant
+        :param Norm: Set it True to automatically normalize the data
+        :param N_batch: Number of input elements on the batch
+        :param plot_contour: Set it True to dinamically plot a contour plot of the results
+        :param n_contour: number of elements on the contour plot
+        :param momentum: Set it True to use momentum and "Nesterov" to use the Nesterov momentum
+        :param avoid_cf: Set it True to only compute the cost function at the plotting timesteps set by n
+        :return:
+        """
         # Perform gradient descent minimization algorithm using the provided learning rate.
         # It uses a fixed number of learning steps
         # Parameters for live plotting
         self.input_set_type = input_set_type
-        self.n_batch = N_batch
+        self.n_batch = n_batch
         self.plotting = plotting
         self.time_start = time.time()
         self.time_0 = self.time_start
@@ -30,7 +56,7 @@ class GradientDescent(ANN):
         self.RTOL = RTOL
         self.NMAX = NMAX
         self.momentum = momentum
-        self.tol["AlwaysDecrease"]["Value"] = AlwaysDecrease
+        self.tol["AlwaysDecrease"]["Value"] = always_decrease
         self.x_backup = self.x
         self.avoid_CF = avoid_cf
         self.plotting = plotting
@@ -50,7 +76,7 @@ class GradientDescent(ANN):
         # Velocities matrix for the momentum implementation
 
 
-        if Norm:  # Specifies if the input X vector should be normalized
+        if norm:  # Specifies if the input X vector should be normalized
             if not self.normalized:
                 ANN.normalize_x_stdmean(self)
 
@@ -135,6 +161,9 @@ class GradientDescent(ANN):
 
 
 class io(GradientDescent):
+    """Input/output control class for GradientDescent
+    This class contains the functions to print output data regarding the evolution of the GradientDescent algorithm
+    """
     def sim_status(self):
         reason = {}
         for i in self.tol:
