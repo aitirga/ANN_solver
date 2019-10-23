@@ -2,10 +2,12 @@
 # Created by aitirga at 09/10/2019
 # Description: This module contains the main functions to run the ANN_solver program
 # ---
-from core_files.constants import *
+import numpy as np
+
 import core_files.ANN_core as ANN_core
 import core_files.gradient_descent as GD
-import numpy as np
+from core_files.constants import *
+
 
 class ANN_solver(ANN_core.ANN):
     def __init__(self, dim, activation_function_list=(), eps_ini=EPS_INI, cost_function="MSE", verbose=True):
@@ -28,17 +30,20 @@ class ANN_solver(ANN_core.ANN):
         ANN_core.io.print_intro(self)
 
     def run_gradient_descent(self, alpha=1e-4, ATOL=ATOL, RTOL=RTOL, always_decrease=False,
-                                                    n=100, plotting=True, n_plot=False, NMAX=NMAX, lambda0=0.0, input_set_type="full",
-                                                    momentum_g=0.8, norm=False, n_batch=25, plot_contour=False, n_contour=[100, 100],
-                                                    momentum=False, avoid_cf=False, **kwargs):
+                             n=100, plotting=True, n_plot=False, NMAX=NMAX, lambda0=0.0, input_set_type="full",
+                             momentum_g=0.8, norm=False, n_batch=25, plot_contour=False, n_contour=(100, 100),
+                             momentum=False, avoid_cf=False, **kwargs):
         """Runs the gradient descent algorithm
         Runs the gradient descent algorithm
+        :param norm:
+        :param n_batch:
+        :param always_decrease:
         :param alpha: initial learning rate
         :param ATOL: absolute tolerance, if the change in cost function between consecutive steps is less than ATOL,
         the algorithm converges
         :param RTOL: relative tolerance, if the change in costa function compared to the initial one is less than RTOL,
         the algorithm converges
-        :param AlwaysDecrease: set it TRUE in order to force the cost function to always decrease in value, if it does
+        :param always_decrease: set it TRUE in order to force the cost function to always decrease in value, if it does
         not do that, an error is raised
         :param n: parameter that controls the number of steps before updating the plots
         :param plotting:
@@ -49,8 +54,6 @@ class ANN_solver(ANN_core.ANN):
         "full" to use the whole dataset, "batch" to do batches of n_batch elements and "stochastic" to use one
         input every step
         :param momentum_g: sets the momentum constant
-        :param Norm: Set it True to automatically normalize the data
-        :param N_batch: Number of input elements on the batch
         :param plot_contour: Set it True to dinamically plot a contour plot of the results
         :param n_contour: number of elements on the contour plot
         :param momentum: Set it True to use momentum and "Nesterov" to use the Nesterov momentum
@@ -59,11 +62,12 @@ class ANN_solver(ANN_core.ANN):
         """
 
         GD.GradientDescent.initialize(self, alpha=alpha, ATOL=ATOL, RTOL=RTOL, always_decrease=always_decrease,
-                                                    n=n, plotting=plotting, n_plot=n_plot, NMAX=NMAX, lambda0=lambda0, input_set_type=input_set_type,
-                                                    momentum_g=momentum_g, norm=norm, n_batch=n_batch, plot_contour=plot_contour, n_contour=n_contour,
-                                                    momentum=momentum, avoid_cf=avoid_cf, **kwargs)
+                                      n=n, plotting=plotting, n_plot=n_plot, NMAX=NMAX, lambda0=lambda0,
+                                      input_set_type=input_set_type,
+                                      momentum_g=momentum_g, norm=norm, n_batch=n_batch, plot_contour=plot_contour,
+                                      n_contour=n_contour,
+                                      momentum=momentum, avoid_cf=avoid_cf)
         GD.GradientDescent.run_gradient_descent(self)
-        # ANN_core.ANN.gradient_descent(self, **kwargs)
 
     # TODO: Take out the link of the function below from ANN_core
     def write_weights(self, filename):
@@ -86,4 +90,3 @@ class ANN_solver(ANN_core.ANN):
 
 if __name__ == "__main__":
     pass
-

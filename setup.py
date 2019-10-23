@@ -6,7 +6,7 @@ setup(
     packages=['tests', 'core_files'],
     url='https://github.com/aitirga/ANN_solver',
     license='',
-    author='Aitirga',
+    author='Aitor Iraola Galarza',
     author_email='aitirga@gmail.com',
-    description='Artificial Neural Network (ANN) solver'
+    description='Artificial Neural Network (ANN) solver', install_requires=['numpy', 'matplotlib']
 )
