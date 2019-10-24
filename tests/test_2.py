@@ -1,5 +1,5 @@
 # Develop ANN
-from core_files.ANN_solver import ANN_solver
+from ann_solver.ann_solver import ANN_solver
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap

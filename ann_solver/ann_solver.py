@@ -4,9 +4,9 @@
 # ---
 import numpy as np
 
-import core_files.ANN_core as ANN_core
-import core_files.gradient_descent as GD
-from core_files.constants import *
+import ann_solver.ann_core as ANN_core
+import ann_solver.gradient_descent as GD
+from ann_solver.constants import *
 
 
 class ANN_solver(ANN_core.ANN):

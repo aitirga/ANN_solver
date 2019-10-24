@@ -8,8 +8,8 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 
-from core_files.ANN_core import ANN
-from core_files.constants import *
+from ann_solver.ann_core import ANN
+from ann_solver.constants import *
 
 
 class GradientDescent(ANN):

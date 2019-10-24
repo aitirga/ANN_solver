@@ -8,9 +8,9 @@ import random as rd
 import matplotlib.pyplot as plt
 import numpy as np
 
-import core_files.auxiliar_functions as aux  # Auxiliar functions
-# from core_files.gradient_descent import GradientDescent
-from core_files.constants import *  # Parameters and constants
+import ann_solver.auxiliar_functions as aux  # Auxiliar functions
+# from ann_solver.gradient_descent import GradientDescent
+from ann_solver.constants import *  # Parameters and constants
 
 
 def print_nodes(x, nodes):
@@ -55,7 +55,7 @@ def convert_vector(vec):
 
 
 class ANN:
-    # from core_files.io_module import io
+    # from ann_solver.io_module import io
     # This is the Neural Network class builder.
     # Input parameters are:
     # 1. dim vector, containing the inner structure of the NN layers

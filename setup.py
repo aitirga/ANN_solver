@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='ANN-solver',
     version='0.9',
-    packages=['tests', 'core_files'],
+    packages=['tests', 'ann_solver'],
     url='https://github.com/aitirga/ANN_solver',
     license='',
     author='Aitor Iraola Galarza',
