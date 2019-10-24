@@ -58,6 +58,7 @@ def plot_results(x_sample, y_sample, Neural_network):
 
 
 if __name__ == '__main__':
+    # This test case runs a regression minimizing Mean Square Error of a set of points using an ANN
     dim = [2, 10, 2, 1]  # Dimensions of the neural network (input_layer, hidden_layer_1, ..., hidden_layer_n, output_layer)
     activation_list = ["linear", "ReLU", "sigmoid", "linear"]  # List of activation functions
     Neural_network = ANN_solver(dim, activation_function_list=activation_list, cost_function="MSE")
